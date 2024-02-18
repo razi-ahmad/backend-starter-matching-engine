@@ -11,6 +11,7 @@ import io.bux.matchingengine.engine.Trade;
 import io.bux.matchingengine.exception.NotFoundException;
 import io.bux.matchingengine.util.MapperUtil;
 import io.bux.matchingengine.validation.OrderValidation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class OrderBookServiceImpl implements OrderBookService {
 
@@ -32,6 +34,8 @@ public class OrderBookServiceImpl implements OrderBookService {
 
     @Override
     public OrderResponse placeOrder(OrderRequest request) {
+        log.info("====>> Place order service method starts");
+
         OrderValidation.validateOrderRequest(request);
 
         OrderModel orderModel = saveOrder(request);
@@ -46,6 +50,7 @@ public class OrderBookServiceImpl implements OrderBookService {
     }
 
     private OrderModel saveOrder(OrderRequest request) {
+        log.info("====>> Save order service method starts");
         OrderModel orderModel = MapperUtil.mapOrderRequestToOrderModel(request);
         orderModel = orderRepository.save(orderModel);
         return orderModel;
@@ -53,6 +58,7 @@ public class OrderBookServiceImpl implements OrderBookService {
 
     @Override
     public OrderResponse getOrder(Long orderId) {
+        log.info("====>> Get order service method starts");
         Optional<OrderModel> order = orderRepository.getById(orderId);
         if (order.isEmpty()) {
             throw new NotFoundException("Order not found");
@@ -61,6 +67,7 @@ public class OrderBookServiceImpl implements OrderBookService {
     }
 
     private void updateBuyAndSellOrdersWithTrades(List<Pair<Trade, Trade>> trades, OrderModel order) {
+        log.info("====>> Update buy and sell orders with trades {}", trades);
         trades.forEach(tradePair -> {
             Trade trade = tradePair.getRight();
             order.getTrades().add(new TradeModel(trade.orderId(), trade.price(), trade.amount()));

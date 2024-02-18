@@ -13,4 +13,14 @@ public record OrderRequest(
         Double amount,
         @NotNull
         Direction direction) {
+
+        @Override
+        public String toString() {
+                return "OrderRequest{" +
+                        "asset='" + asset + '\'' +
+                        ", price=" + price +
+                        ", amount=" + amount +
+                        ", direction=" + direction +
+                        '}';
+        }
 }

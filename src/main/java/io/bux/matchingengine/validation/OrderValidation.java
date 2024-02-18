@@ -2,16 +2,20 @@ package io.bux.matchingengine.validation;
 
 import io.bux.matchingengine.dto.OrderRequest;
 import io.bux.matchingengine.engine.Order;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Objects;
 
 import static io.bux.matchingengine.util.MessageConstant.*;
 
+@Slf4j
 public class OrderValidation {
     private OrderValidation() {
 
     }
+
     public static void validateOrder(Order order) {
+        log.info("====>> Validate order {}", order);
         if (Objects.isNull(order)) {
             throw new IllegalArgumentException(EMPTY_ORDER_ERROR);
         }
@@ -36,7 +40,8 @@ public class OrderValidation {
             throw new ArithmeticException(NEGATIVE_AMOUNT_ERROR);
     }
 
-    public static void validateOrderRequest(OrderRequest request){
+    public static void validateOrderRequest(OrderRequest request) {
+        log.info("====>> Validate order request {}", request);
         if (Objects.isNull(request)) {
             throw new IllegalArgumentException(EMPTY_ORDER_REQUEST_ERROR);
         }

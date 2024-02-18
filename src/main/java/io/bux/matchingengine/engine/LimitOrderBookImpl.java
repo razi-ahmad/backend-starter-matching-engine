@@ -2,12 +2,14 @@ package io.bux.matchingengine.engine;
 
 import io.bux.matchingengine.enums.Direction;
 import io.bux.matchingengine.validation.OrderValidation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedList;
 import java.util.List;
 
+@Slf4j
 @Component
 public class LimitOrderBookImpl implements OrderBook {
 
@@ -20,12 +22,14 @@ public class LimitOrderBookImpl implements OrderBook {
     }
 
     public List<Pair<Trade, Trade>> processOrder(Order order) {
+        log.info("====>> Process order book method starts");
         OrderValidation.validateOrder(order);
         return processLimitOrder(order);
 
     }
 
     private synchronized List<Pair<Trade, Trade>> processLimitOrder(Order order) {
+        log.info("====>> Process limit order book method starts");
         Direction direction = order.getDirection();
         if (direction == Direction.BUY) {
             buySide.addOrder(order);
@@ -37,7 +41,7 @@ public class LimitOrderBookImpl implements OrderBook {
     }
 
     private List<Pair<Trade, Trade>> matchAndExecuteOrder(Order order, OrderTree orderTree) {
-
+        log.info("====>> Match and execute order book method starts");
         double amount = order.getAmount();
         long orderId = order.getOrderId();
         double price = order.getPrice();
@@ -48,6 +52,7 @@ public class LimitOrderBookImpl implements OrderBook {
     }
 
     private List<Pair<Trade, Trade>> processBuyOrder(Order order, OrderTree orderTree, double amount, double price, long orderId) {
+        log.info("====>> Process buy order book method starts");
         List<Pair<Trade, Trade>> trades = new LinkedList<>();
         while (amount > 0 && orderTree.isNotEmpty() && price >= orderTree.getLowestPrice()) {
             List<Order> minOrderList = orderTree.getMinPriceList();
@@ -77,6 +82,7 @@ public class LimitOrderBookImpl implements OrderBook {
     }
 
     private List<Pair<Trade, Trade>> processSellOrder(Order order, OrderTree orderTree, double amount, double price, long orderId) {
+        log.info("====>> Process sell order book method starts");
         List<Pair<Trade, Trade>> trades = new LinkedList<>();
         while (amount > 0 && orderTree.isNotEmpty() && price <= orderTree.getHighestPrice()) {
             List<Order> maxOrderList = orderTree.getMaxPriceList();
