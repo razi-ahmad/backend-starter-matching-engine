@@ -1,0 +1,14 @@
+version: "3.7"
+
+services:
+
+  limit-order-book:
+    platform: linux/arm64
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+      labels:
+        container-name: limit-order-book
+    ports:
+      - "8080:8080"

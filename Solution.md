@@ -8,5 +8,30 @@
 ## Order transactions
 - To save the order transactions, HashMap is used as data structure. From time complexity perspective, insertion and retrieval takes O(1). 
 
+## Start application
+```bash
+make dc-up
+```
 
+## Stop application
+```bash
+make dc-down
+```
 
+## Get order sample request
+
+```bash
+curl --location --request GET 'http://localhost:8080/orders/0'
+```
+
+## Place order sample request
+```bash
+curl --location 'http://localhost:8080/orders' \
+--header 'Content-Type: application/json' \
+--data '{
+  "asset": "BTC",
+  "price": 43251.00,
+  "amount": 0.65,
+  "direction": "BUY"
+}'
+```
