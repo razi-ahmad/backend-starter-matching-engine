@@ -14,14 +14,25 @@ public class OrderTree {
 
         orderMap.put(orderId, order);
         if (assets.containsKey(asset)) {
-            assets.get(asset).get(price).add(order);
+            if (assets.get(asset).containsKey(price)) {
+                assets.get(asset).get(price).add(order);
+            } else {
+                LinkedList<Order> priceList = new LinkedList<>();
+                priceList.add(order);
+                TreeMap<Double, LinkedList<Order>> orderTree = assets.get(asset);
+                orderTree.put(order.getPrice(), priceList);
+            }
         } else {
-            LinkedList<Order> priceList = new LinkedList<>();
-            priceList.add(order);
-            TreeMap<Double, LinkedList<Order>> orderTree = new TreeMap<>();
-            orderTree.put(price, priceList);
-            assets.put(asset, orderTree);
+            saveOrder(order);
         }
+    }
+
+    private void saveOrder(Order order) {
+        LinkedList<Order> priceList = new LinkedList<>();
+        priceList.add(order);
+        TreeMap<Double, LinkedList<Order>> orderTree = new TreeMap<>();
+        orderTree.put(order.getPrice(), priceList);
+        assets.put(order.getAsset(), orderTree);
     }
 
     public void deleteOrder(Long orderId) {
@@ -30,10 +41,15 @@ public class OrderTree {
             double price = order.getPrice();
             String asset = order.getAsset();
             if (assets.containsKey(asset)) {
-                LinkedList<Order> priceList = assets.get(asset).get(price);
-                priceList.remove(order);
-                if (priceList.isEmpty()) {
-                    assets.remove(asset);
+                if (assets.get(asset).containsKey(price)) {
+                    LinkedList<Order> priceList = assets.get(asset).get(price);
+                    priceList.remove(order);
+                    if (priceList.isEmpty()) {
+                        assets.get(asset).remove(price);
+                        if (assets.get(asset).isEmpty()) {
+                            assets.remove(asset);
+                        }
+                    }
                 }
             }
             orderMap.remove(orderId);
@@ -59,6 +75,6 @@ public class OrderTree {
     }
 
     public boolean isNotEmpty(String asset) {
-        return !(asset.isEmpty() || assets.get(asset).isEmpty());
+        return !(assets.isEmpty() || assets.get(asset).isEmpty());
     }
 }

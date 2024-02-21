@@ -40,15 +40,21 @@ class OrderValidationTest {
     }
 
     @Test
-    public void test_validate_order_when_amount_is_null() {
+    public void test_validate_order_when_asset_is_null() {
         final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(0.01).direction(Direction.BUY).build()));
+        assertThat(raisedException).isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(EMPTY_ASSET_ERROR);
+    }
+    @Test
+    public void test_validate_order_when_amount_is_null() {
+        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(0.01).direction(Direction.BUY).asset("BTC").build()));
         assertThat(raisedException).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(EMPTY_AMOUNT_ERROR);
     }
 
     @Test
     public void test_validate_order_when_amount_is_negative() {
-        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(0.01).amount(-Double.MIN_VALUE).direction(Direction.BUY).build()));
+        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(0.01).amount(-Double.MIN_VALUE).direction(Direction.BUY).asset("BTC").build()));
         assertThat(raisedException).isInstanceOf(ArithmeticException.class)
                 .hasMessageContaining(NEGATIVE_AMOUNT_ERROR);
     }

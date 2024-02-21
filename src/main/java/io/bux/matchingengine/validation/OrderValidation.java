@@ -31,7 +31,9 @@ public class OrderValidation {
         if (Objects.isNull(order.getDirection())) {
             throw new IllegalArgumentException(EMPTY_DIRECTION_ERROR);
         }
-
+        if(Objects.isNull(order.getAsset())){
+            throw new IllegalArgumentException(EMPTY_ASSET_ERROR);
+        }
         if (Objects.isNull(order.getAmount())) {
             throw new IllegalArgumentException(EMPTY_AMOUNT_ERROR);
         }
