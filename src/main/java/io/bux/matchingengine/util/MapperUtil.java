@@ -45,7 +45,8 @@ public final class MapperUtil {
                 orderModel.getAmount(),
                 orderModel.getPrice(),
                 orderModel.getDirection(),
-                orderModel.getTimestamp()
+                orderModel.getTimestamp(),
+                orderModel.getAsset()
         );
     }
 }

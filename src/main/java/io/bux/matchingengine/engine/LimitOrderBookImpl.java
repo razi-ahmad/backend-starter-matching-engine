@@ -54,8 +54,8 @@ public class LimitOrderBookImpl implements OrderBook {
     private List<Pair<Trade, Trade>> processBuyOrder(Order order, OrderTree orderTree, double amount, double price, long orderId) {
         log.info("====>> Process buy order book method starts");
         List<Pair<Trade, Trade>> trades = new LinkedList<>();
-        while (amount > 0 && orderTree.isNotEmpty() && price >= orderTree.getLowestPrice()) {
-            List<Order> minOrderList = orderTree.getMinPriceList();
+        while (amount > 0 && orderTree.isNotEmpty(order.getAsset()) && price >= orderTree.getLowestPrice(order.getAsset())) {
+            List<Order> minOrderList = orderTree.getMinPriceList(order.getAsset());
             if (minOrderList == null || minOrderList.isEmpty()) break;
 
             for (Order o : minOrderList) {
@@ -84,8 +84,8 @@ public class LimitOrderBookImpl implements OrderBook {
     private List<Pair<Trade, Trade>> processSellOrder(Order order, OrderTree orderTree, double amount, double price, long orderId) {
         log.info("====>> Process sell order book method starts");
         List<Pair<Trade, Trade>> trades = new LinkedList<>();
-        while (amount > 0 && orderTree.isNotEmpty() && price <= orderTree.getHighestPrice()) {
-            List<Order> maxOrderList = orderTree.getMaxPriceList();
+        while (amount > 0 && orderTree.isNotEmpty(order.getAsset()) && price <= orderTree.getHighestPrice(order.getAsset())) {
+            List<Order> maxOrderList = orderTree.getMaxPriceList(order.getAsset());
             if (maxOrderList == null || maxOrderList.isEmpty()) break;
             for (Order o : maxOrderList) {
                 double tradedAmount;

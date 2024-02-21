@@ -19,6 +19,7 @@ public class Order {
     private Double price;
     private Direction direction;
     private Instant timestamp;
+    private String asset;
 
     public void setAmount(Double amount) {
         if (amount < Double.MIN_VALUE) {
