@@ -10,7 +10,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>io.bux</groupId>
-    <artifactId>backend-assignment-starter-matching-engine</artifactId>
+    <artifactId>backend-starter-matching-engine</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>backend-assignment-starter-matching-engine</name>
     <description>Simple matching engine</description>
