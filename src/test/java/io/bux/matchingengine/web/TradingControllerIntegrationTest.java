@@ -63,13 +63,13 @@ public class TradingControllerIntegrationTest {
         Assertions.assertNotNull(orderResponse);
         Assertions.assertNotNull(orderResponse.trades());
         Assertions.assertEquals(3, orderResponse.id());
-        Assertions.assertEquals(43251.00, orderResponse.price());
-        Assertions.assertEquals(0.65, orderResponse.amount());
+        Assertions.assertEquals(new BigDecimal("43251.00"), orderResponse.price());
+        Assertions.assertEquals(new BigDecimal("0.65"), orderResponse.amount());
         Assertions.assertEquals(Direction.BUY, orderResponse.direction());
-        Assertions.assertEquals(0.00, orderResponse.pendingAmount());
+        Assertions.assertEquals(BigDecimal.ZERO, orderResponse.pendingAmount().stripTrailingZeros());
         Assertions.assertEquals(1, orderResponse.trades().size());
         Assertions.assertEquals(0, orderResponse.trades().get(0).orderId());
-        Assertions.assertEquals(0.65, orderResponse.trades().get(0).amount());
-        Assertions.assertEquals(43251.00, orderResponse.trades().get(0).price());
+        Assertions.assertEquals(new BigDecimal("0.65"), orderResponse.trades().get(0).amount());
+        Assertions.assertEquals(new BigDecimal("43251.00"), orderResponse.trades().get(0).price());
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 
 @Slf4j
 @Component
@@ -56,7 +57,7 @@ public class LimitOrderBookImpl implements OrderBook {
         log.info("====>> Process buy order book method starts");
         List<Pair<Trade, Trade>> trades = new LinkedList<>();
         while (amount.signum() > 0 && orderTree.isNotEmpty(order.getAsset()) && price.compareTo(orderTree.getLowestPrice(order.getAsset())) >= 0) {
-            List<Order> minOrderList = orderTree.getMinPriceList(order.getAsset());
+            PriorityQueue<Order> minOrderList = orderTree.getMinPriceList(order.getAsset());
             if (minOrderList == null || minOrderList.isEmpty()) break;
 
             for (Order o : minOrderList) {
@@ -64,19 +65,19 @@ public class LimitOrderBookImpl implements OrderBook {
                 if (o.getAmount().compareTo(amount) >= 0) {
                     tradedAmount = amount;
                     this.buySide.deleteOrder(orderId);
-                    amount = BigDecimal.ZERO;
                     if (o.getAmount().subtract(tradedAmount).equals(BigDecimal.ZERO)) {
                         orderTree.deleteOrder(o.getOrderId());
                     } else {
                         o.setAmount(o.getAmount().subtract(tradedAmount));
                     }
+                    trades.add(Pair.of(new Trade(order.getOrderId(), tradedAmount, o.getPrice()), new Trade(o.getOrderId(), tradedAmount, o.getPrice())));
+                    return trades;
                 } else {
-                    tradedAmount = o.getAmount();
                     amount = amount.subtract(o.getAmount());
                     orderTree.deleteOrder(o.getOrderId());
                     order.setAmount(amount);
+                    trades.add(Pair.of(new Trade(order.getOrderId(), o.getAmount(), o.getPrice()), new Trade(o.getOrderId(), o.getAmount(), o.getPrice())));
                 }
-                trades.add(Pair.of(new Trade(order.getOrderId(), tradedAmount, o.getPrice()), new Trade(o.getOrderId(), tradedAmount, o.getPrice())));
             }
         }
         return trades;
@@ -86,26 +87,27 @@ public class LimitOrderBookImpl implements OrderBook {
         log.info("====>> Process sell order book method starts");
         List<Pair<Trade, Trade>> trades = new LinkedList<>();
         while (amount.signum() > 0 && orderTree.isNotEmpty(order.getAsset()) && orderTree.getHighestPrice(order.getAsset()).compareTo(price) >= 0) {
-            List<Order> maxOrderList = orderTree.getMaxPriceList(order.getAsset());
-            if (maxOrderList == null || maxOrderList.isEmpty()) break;
-            for (Order o : maxOrderList) {
+            PriorityQueue<Order> minOrderList = orderTree.getMaxPriceList(order.getAsset());
+            if (minOrderList == null || minOrderList.isEmpty()) break;
+            for (Order o : minOrderList) {
                 BigDecimal tradedAmount;
                 if (o.getAmount().compareTo(amount) >= 0) {
                     tradedAmount = amount;
                     this.sellSide.deleteOrder(orderId);
-                    amount = BigDecimal.ZERO;
                     if (o.getAmount().subtract(tradedAmount).compareTo(BigDecimal.ZERO) == 0) {
                         orderTree.deleteOrder(o.getOrderId());
                     } else {
                         o.setAmount(o.getAmount().subtract(tradedAmount));
                     }
+                    trades.add(Pair.of(new Trade(order.getOrderId(), tradedAmount, o.getPrice()), new Trade(o.getOrderId(), tradedAmount, o.getPrice())));
+                    return trades;
                 } else {
-                    tradedAmount = o.getAmount();
                     amount = amount.subtract(o.getAmount());
                     orderTree.deleteOrder(o.getOrderId());
                     order.setAmount(amount);
+                    trades.add(Pair.of(new Trade(order.getOrderId(), o.getAmount(), o.getPrice()), new Trade(o.getOrderId(), o.getAmount(), o.getPrice())));
                 }
-                trades.add(Pair.of(new Trade(order.getOrderId(), tradedAmount, o.getPrice()), new Trade(o.getOrderId(), tradedAmount, o.getPrice())));
+
             }
         }
         return trades;

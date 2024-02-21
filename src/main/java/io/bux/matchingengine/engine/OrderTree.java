@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class OrderTree {
-    private final Map<String, TreeMap<BigDecimal, LinkedList<Order>>> assets = new TreeMap<>();
+    private final Map<String, TreeMap<BigDecimal, PriorityQueue<Order>>> assets = new TreeMap<>();
     private final HashMap<Long, Order> orderMap = new HashMap<>();
 
     public void addOrder(Order order) {
@@ -18,9 +18,9 @@ public class OrderTree {
             if (assets.get(asset).containsKey(price)) {
                 assets.get(asset).get(price).add(order);
             } else {
-                LinkedList<Order> priceList = new LinkedList<>();
+                PriorityQueue<Order> priceList = new PriorityQueue<>(Comparator.comparing(Order::getTimestamp));
                 priceList.add(order);
-                TreeMap<BigDecimal, LinkedList<Order>> orderTree = assets.get(asset);
+                TreeMap<BigDecimal, PriorityQueue<Order>> orderTree = assets.get(asset);
                 orderTree.put(order.getPrice(), priceList);
             }
         } else {
@@ -29,9 +29,9 @@ public class OrderTree {
     }
 
     private void saveOrder(Order order) {
-        LinkedList<Order> priceList = new LinkedList<>();
+        PriorityQueue<Order> priceList = new PriorityQueue<>(Comparator.comparing(Order::getTimestamp));
         priceList.add(order);
-        TreeMap<BigDecimal, LinkedList<Order>> orderTree = new TreeMap<>();
+        TreeMap<BigDecimal, PriorityQueue<Order>> orderTree = new TreeMap<>();
         orderTree.put(order.getPrice(), priceList);
         assets.put(order.getAsset(), orderTree);
     }
@@ -43,7 +43,7 @@ public class OrderTree {
             String asset = order.getAsset();
             if (assets.containsKey(asset)) {
                 if (assets.get(asset).containsKey(price)) {
-                    LinkedList<Order> priceList = assets.get(asset).get(price);
+                    PriorityQueue<Order> priceList = assets.get(asset).get(price);
                     priceList.remove(order);
                     if (priceList.isEmpty()) {
                         assets.get(asset).remove(price);
@@ -57,9 +57,9 @@ public class OrderTree {
         }
     }
 
-    public List<Order> getMinPriceList(String asset) {
-        if (assets.isEmpty() || assets.get(asset).isEmpty()) return Collections.unmodifiableList(new LinkedList<>());
-        return List.copyOf(assets.get(asset).firstEntry().getValue());
+    public PriorityQueue<Order> getMinPriceList(String asset) {
+        if (assets.isEmpty() || assets.get(asset).isEmpty()) return new PriorityQueue<>();
+        return new PriorityQueue<Order>(assets.get(asset).firstEntry().getValue());
     }
 
     public BigDecimal getLowestPrice(String asset) {
@@ -70,9 +70,9 @@ public class OrderTree {
         return assets.isEmpty() || assets.get(asset).isEmpty() ? BigDecimal.valueOf(Double.MAX_VALUE) : assets.get(asset).lastKey();
     }
 
-    public List<Order> getMaxPriceList(String asset) {
-        if (assets.isEmpty() || assets.get(asset).isEmpty()) return Collections.unmodifiableList(new LinkedList<>());
-        return List.copyOf(assets.get(asset).lastEntry().getValue());
+    public PriorityQueue<Order> getMaxPriceList(String asset) {
+        if (assets.isEmpty() || assets.get(asset).isEmpty()) return new PriorityQueue<>();
+        return new PriorityQueue<>(assets.get(asset).lastEntry().getValue());
     }
 
     public boolean isNotEmpty(String asset) {
