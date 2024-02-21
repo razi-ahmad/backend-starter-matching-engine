@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,36 +43,36 @@ public class LimitOrderBookImpl implements OrderBook {
 
     private List<Pair<Trade, Trade>> matchAndExecuteOrder(Order order, OrderTree orderTree) {
         log.info("====>> Match and execute order book method starts");
-        double amount = order.getAmount();
+        BigDecimal amount = order.getAmount();
         long orderId = order.getOrderId();
-        double price = order.getPrice();
+        BigDecimal price = order.getPrice();
         if (order.getDirection() == Direction.BUY) {
             return processBuyOrder(order, orderTree, amount, price, orderId);
         }
         return processSellOrder(order, orderTree, amount, price, orderId);
     }
 
-    private List<Pair<Trade, Trade>> processBuyOrder(Order order, OrderTree orderTree, double amount, double price, long orderId) {
+    private List<Pair<Trade, Trade>> processBuyOrder(Order order, OrderTree orderTree, BigDecimal amount, BigDecimal price, long orderId) {
         log.info("====>> Process buy order book method starts");
         List<Pair<Trade, Trade>> trades = new LinkedList<>();
-        while (amount > 0 && orderTree.isNotEmpty(order.getAsset()) && price >= orderTree.getLowestPrice(order.getAsset())) {
+        while (amount.signum() > 0 && orderTree.isNotEmpty(order.getAsset()) && price.compareTo(orderTree.getLowestPrice(order.getAsset())) >= 0) {
             List<Order> minOrderList = orderTree.getMinPriceList(order.getAsset());
             if (minOrderList == null || minOrderList.isEmpty()) break;
 
             for (Order o : minOrderList) {
-                double tradedAmount;
-                if (amount <= o.getAmount()) {
+                BigDecimal tradedAmount;
+                if (o.getAmount().compareTo(amount) >= 0) {
                     tradedAmount = amount;
                     this.buySide.deleteOrder(orderId);
-                    amount = 0;
-                    if (o.getAmount() - tradedAmount == 0) {
+                    amount = BigDecimal.ZERO;
+                    if (o.getAmount().subtract(tradedAmount).equals(BigDecimal.ZERO)) {
                         orderTree.deleteOrder(o.getOrderId());
                     } else {
-                        o.setAmount(o.getAmount() - tradedAmount);
+                        o.setAmount(o.getAmount().subtract(tradedAmount));
                     }
                 } else {
                     tradedAmount = o.getAmount();
-                    amount -= o.getAmount();
+                    amount = amount.subtract(o.getAmount());
                     orderTree.deleteOrder(o.getOrderId());
                     order.setAmount(amount);
                 }
@@ -81,26 +82,26 @@ public class LimitOrderBookImpl implements OrderBook {
         return trades;
     }
 
-    private List<Pair<Trade, Trade>> processSellOrder(Order order, OrderTree orderTree, double amount, double price, long orderId) {
+    private List<Pair<Trade, Trade>> processSellOrder(Order order, OrderTree orderTree, BigDecimal amount, BigDecimal price, long orderId) {
         log.info("====>> Process sell order book method starts");
         List<Pair<Trade, Trade>> trades = new LinkedList<>();
-        while (amount > 0 && orderTree.isNotEmpty(order.getAsset()) && price <= orderTree.getHighestPrice(order.getAsset())) {
+        while (amount.signum() > 0 && orderTree.isNotEmpty(order.getAsset()) && orderTree.getHighestPrice(order.getAsset()).compareTo(price) >= 0) {
             List<Order> maxOrderList = orderTree.getMaxPriceList(order.getAsset());
             if (maxOrderList == null || maxOrderList.isEmpty()) break;
             for (Order o : maxOrderList) {
-                double tradedAmount;
-                if (amount <= o.getAmount()) {
+                BigDecimal tradedAmount;
+                if (o.getAmount().compareTo(amount) >= 0) {
                     tradedAmount = amount;
                     this.sellSide.deleteOrder(orderId);
-                    amount = 0;
-                    if (o.getAmount() - tradedAmount == 0) {
+                    amount = BigDecimal.ZERO;
+                    if (o.getAmount().subtract(tradedAmount).compareTo(BigDecimal.ZERO) == 0) {
                         orderTree.deleteOrder(o.getOrderId());
                     } else {
-                        o.setAmount(o.getAmount() - tradedAmount);
+                        o.setAmount(o.getAmount().subtract(tradedAmount));
                     }
                 } else {
                     tradedAmount = o.getAmount();
-                    amount -= o.getAmount();
+                    amount = amount.subtract(o.getAmount());
                     orderTree.deleteOrder(o.getOrderId());
                     order.setAmount(amount);
                 }

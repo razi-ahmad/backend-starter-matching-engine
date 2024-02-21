@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -34,29 +35,29 @@ class OrderBookServiceTest {
     private OrderDao orderRepository;
 
     @Test
-    void test_place_order_successfully(){
-        OrderRequest request=new OrderRequest("TST",10.0,100.0,Direction.SELL);
-        OrderModel orderModel= MapperUtil.mapOrderRequestToOrderModel(request);
+    void test_place_order_successfully() {
+        OrderRequest request = new OrderRequest("TST", new BigDecimal("10.0"), new BigDecimal("100.0"), Direction.SELL);
+        OrderModel orderModel = MapperUtil.mapOrderRequestToOrderModel(request);
         orderModel.setId(2L);
         orderModel.setTimestamp(Instant.now());
         Mockito.when(orderRepository.save(ArgumentMatchers.any(OrderModel.class))).thenReturn(orderModel);
 
         List<Pair<Trade, Trade>> mockTrades = List.of(
-                Pair.of(new Trade(2L,10.0,10.0),new Trade(0L,10.0,10.0))
+                Pair.of(new Trade(2L, new BigDecimal("10.0"), new BigDecimal("10.0")), new Trade(0L, new BigDecimal("10.0"), new BigDecimal("10.0")))
         );
         Mockito.when(orderBook.processOrder(ArgumentMatchers.any(Order.class))).thenReturn(mockTrades);
         Mockito.when(orderRepository.getById(0L)).thenReturn(Optional.of(OrderModel.builder().build()));
 
-        OrderResponse response=underTest.placeOrder(request);
+        OrderResponse response = underTest.placeOrder(request);
 
-        Assertions.assertEquals(orderModel.getId(),response.id());
-        Assertions.assertEquals(orderModel.getAmount(),response.amount());
-        Assertions.assertEquals(orderModel.getPrice(),response.price());
-        Assertions.assertEquals(orderModel.getDirection(),response.direction());
-        Assertions.assertEquals(orderModel.getAsset(),response.asset());
-        Assertions.assertEquals(90.0,response.pendingAmount());
-        Assertions.assertEquals(1,orderModel.getTrades().size());
-        Assertions.assertArrayEquals(List.of(new TradeResponse(0L,10.0,10.0)).toArray(), response.trades().toArray());
+        Assertions.assertEquals(orderModel.getId(), response.id());
+        Assertions.assertEquals(orderModel.getAmount(), response.amount());
+        Assertions.assertEquals(orderModel.getPrice(), response.price());
+        Assertions.assertEquals(orderModel.getDirection(), response.direction());
+        Assertions.assertEquals(orderModel.getAsset(), response.asset());
+        Assertions.assertEquals(0, new BigDecimal("90.0").compareTo(response.pendingAmount()));
+        Assertions.assertEquals(1, orderModel.getTrades().size());
+        Assertions.assertArrayEquals(List.of(new TradeResponse(0L, new BigDecimal("10.0"), new BigDecimal("10.0"))).toArray(), response.trades().toArray());
     }
 
     @Test
@@ -71,20 +72,20 @@ class OrderBookServiceTest {
         Long orderId = 11223344L;
         OrderModel orderModel = OrderModel.builder()
                 .id(orderId)
-                .amount(10.0)
-                .amount(100.00)
+                .amount(new BigDecimal("10.0"))
+                .amount(new BigDecimal("100.00"))
                 .asset("TST")
                 .direction(Direction.SELL)
                 .timestamp(Instant.now())
                 .build();
         Mockito.when(orderRepository.getById(orderId)).thenReturn(Optional.of(orderModel));
-        OrderResponse response=underTest.getOrder(orderId);
-        Assertions.assertEquals(orderModel.getId(),response.id());
-        Assertions.assertEquals(orderModel.getAmount(),response.amount());
-        Assertions.assertEquals(orderModel.getPrice(),response.price());
-        Assertions.assertEquals(orderModel.getDirection(),response.direction());
-        Assertions.assertEquals(orderModel.getAsset(),response.asset());
-        Assertions.assertEquals(orderModel.getAmount(),response.pendingAmount());
+        OrderResponse response = underTest.getOrder(orderId);
+        Assertions.assertEquals(orderModel.getId(), response.id());
+        Assertions.assertEquals(orderModel.getAmount(), response.amount());
+        Assertions.assertEquals(orderModel.getPrice(), response.price());
+        Assertions.assertEquals(orderModel.getDirection(), response.direction());
+        Assertions.assertEquals(orderModel.getAsset(), response.asset());
+        Assertions.assertEquals(orderModel.getAmount(), response.pendingAmount());
         Assertions.assertTrue(response.trades().isEmpty());
 
     }

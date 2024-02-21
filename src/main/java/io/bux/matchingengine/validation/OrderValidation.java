@@ -4,6 +4,7 @@ import io.bux.matchingengine.dto.OrderRequest;
 import io.bux.matchingengine.engine.Order;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 import static io.bux.matchingengine.util.MessageConstant.*;
@@ -31,15 +32,16 @@ public class OrderValidation {
         if (Objects.isNull(order.getDirection())) {
             throw new IllegalArgumentException(EMPTY_DIRECTION_ERROR);
         }
-        if(Objects.isNull(order.getAsset())){
+        if (Objects.isNull(order.getAsset())) {
             throw new IllegalArgumentException(EMPTY_ASSET_ERROR);
         }
         if (Objects.isNull(order.getAmount())) {
             throw new IllegalArgumentException(EMPTY_AMOUNT_ERROR);
         }
 
-        if (order.getAmount() < Double.MIN_VALUE)
-            throw new ArithmeticException(NEGATIVE_AMOUNT_ERROR);
+        if (BigDecimal.ZERO.compareTo(order.getAmount()) >= 0) {
+            throw new ArithmeticException(ZERO_AMOUNT_ERROR);
+        }
     }
 
     public static void validateOrderRequest(OrderRequest request) {
@@ -63,8 +65,8 @@ public class OrderValidation {
         if (Objects.isNull(request.amount())) {
             throw new IllegalArgumentException(EMPTY_ORDER_REQUEST_AMOUNT_ERROR);
         }
-
-        if (request.amount() < Double.MIN_VALUE)
+        if (BigDecimal.ZERO.compareTo(request.amount()) >= 0) {
             throw new ArithmeticException(NEGATIVE_ORDER_REQUEST_AMOUNT_ERROR);
+        }
     }
 }

@@ -5,6 +5,8 @@ import io.bux.matchingengine.engine.Order;
 import io.bux.matchingengine.enums.Direction;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
+
 import static io.bux.matchingengine.util.MessageConstant.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -34,29 +36,29 @@ class OrderValidationTest {
 
     @Test
     public void test_validate_order_when_direction_is_null() {
-        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(0.01).build()));
+        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(new BigDecimal("0.01")).build()));
         assertThat(raisedException).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(EMPTY_DIRECTION_ERROR);
     }
 
     @Test
     public void test_validate_order_when_asset_is_null() {
-        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(0.01).direction(Direction.BUY).build()));
+        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(new BigDecimal("0.01")).direction(Direction.BUY).build()));
         assertThat(raisedException).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(EMPTY_ASSET_ERROR);
     }
     @Test
     public void test_validate_order_when_amount_is_null() {
-        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(0.01).direction(Direction.BUY).asset("BTC").build()));
+        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(new BigDecimal("0.01")).direction(Direction.BUY).asset("BTC").build()));
         assertThat(raisedException).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(EMPTY_AMOUNT_ERROR);
     }
 
     @Test
-    public void test_validate_order_when_amount_is_negative() {
-        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(0.01).amount(-Double.MIN_VALUE).direction(Direction.BUY).asset("BTC").build()));
+    public void test_validate_order_when_amount_is_zero() {
+        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrder(Order.builder().orderId(0L).price(new BigDecimal("0.01")).amount(BigDecimal.ZERO).direction(Direction.BUY).asset("BTC").build()));
         assertThat(raisedException).isInstanceOf(ArithmeticException.class)
-                .hasMessageContaining(NEGATIVE_AMOUNT_ERROR);
+                .hasMessageContaining(ZERO_AMOUNT_ERROR);
     }
 
     @Test
@@ -82,21 +84,21 @@ class OrderValidationTest {
 
     @Test
     public void test_validate_order_request_when_direction_is_null() {
-        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrderRequest(new OrderRequest("TST",100.00,null,null)));
+        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrderRequest(new OrderRequest("TST",new BigDecimal("100.00"),null,null)));
         assertThat(raisedException).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(EMPTY_ORDER_REQUEST_DIRECTION_ERROR);
     }
 
     @Test
     public void test_validate_order_request_when_amount_is_null() {
-        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrderRequest(new OrderRequest("TST",100.00,null,Direction.SELL)));
+        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrderRequest(new OrderRequest("TST",new BigDecimal("100.00"),null,Direction.SELL)));
         assertThat(raisedException).isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(EMPTY_ORDER_REQUEST_AMOUNT_ERROR);
     }
 
     @Test
     public void test_validate_order_request_when_amount_is_negative() {
-        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrderRequest(new OrderRequest("TST",100.00,-Double.MIN_VALUE,Direction.SELL)));
+        final Throwable raisedException = catchThrowable(() -> OrderValidation.validateOrderRequest(new OrderRequest("TST",new BigDecimal("100.00"),BigDecimal.ZERO,Direction.SELL)));
         assertThat(raisedException).isInstanceOf(ArithmeticException.class)
                 .hasMessageContaining(NEGATIVE_ORDER_REQUEST_AMOUNT_ERROR);
     }

@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,8 +19,8 @@ public class OrderModel {
     @Setter
     private Instant timestamp;
     private final String asset;
-    private final Double price;
-    private final Double amount;
+    private final BigDecimal price;
+    private final BigDecimal amount;
     private final Direction direction;
     private final Set<TradeModel> trades = new HashSet<>();
 }

@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestClientException;
 
+import java.math.BigDecimal;
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class TradingControllerIntegrationTest {
@@ -41,19 +43,19 @@ public class TradingControllerIntegrationTest {
 
     @Test
     public void test_with_sample_data() {
-        OrderRequest request = new OrderRequest("BTC", 43251.00, 1.0, Direction.SELL);
+        OrderRequest request = new OrderRequest("BTC", new BigDecimal("43251.00"), new BigDecimal("1.0"), Direction.SELL);
         ResponseEntity<OrderResponse> response = this.restTemplate.postForEntity(BASE_URL, request, OrderResponse.class);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        request = new OrderRequest("BTC", 43250.00, 0.25, Direction.BUY);
+        request = new OrderRequest("BTC", new BigDecimal("43250.00"), new BigDecimal("0.25"), Direction.BUY);
         response = this.restTemplate.postForEntity(BASE_URL, request, OrderResponse.class);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        request = new OrderRequest("BTC", 43253.00, 0.35, Direction.BUY);
+        request = new OrderRequest("BTC", new BigDecimal("43253.00"), new BigDecimal("0.35"), Direction.BUY);
         response = this.restTemplate.postForEntity(BASE_URL, request, OrderResponse.class);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 
-        request = new OrderRequest("BTC", 43251.00, 0.65, Direction.BUY);
+        request = new OrderRequest("BTC", new BigDecimal("43251.00"), new BigDecimal("0.65"), Direction.BUY);
         response = this.restTemplate.postForEntity(BASE_URL, request, OrderResponse.class);
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
 

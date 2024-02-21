@@ -17,6 +17,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class TradingControllerTest {
     @Test
     public void test_place_order() throws Exception {
         Instant timestamp = Instant.now();
-        OrderRequest request = new OrderRequest("BTC", 43251.00, 1.0, Direction.SELL);
+        OrderRequest request = new OrderRequest("BTC", new BigDecimal("43251.00"), new BigDecimal("1.0"), Direction.SELL);
         Mockito.when(orderBookService.placeOrder(ArgumentMatchers.any(OrderRequest.class))).thenReturn(buildOrderResponse(timestamp));
 
         mvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON).content(JsonUtil.toJson(request)))
@@ -81,12 +82,12 @@ public class TradingControllerTest {
         return new OrderResponse(0L,
                 timestamp,
                 "BTC",
-                43251.00,
-                1.0,
+                new BigDecimal("43251.00"),
+                new BigDecimal("1.0"),
                 Direction.SELL,
                 List.of(
-                        new TradeResponse(2L, 0.35, 43251.00)
+                        new TradeResponse(2L, new BigDecimal("0.35"), new BigDecimal("43251.00"))
                 ),
-                0.65);
+                new BigDecimal("0.65"));
     }
 }

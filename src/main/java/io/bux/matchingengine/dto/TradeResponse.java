@@ -1,6 +1,8 @@
 package io.bux.matchingengine.dto;
 
-public record TradeResponse(Long orderId, Double amount, Double price) {
+import java.math.BigDecimal;
+
+public record TradeResponse(Long orderId, BigDecimal amount, BigDecimal price) {
 
     @Override
     public String toString() {

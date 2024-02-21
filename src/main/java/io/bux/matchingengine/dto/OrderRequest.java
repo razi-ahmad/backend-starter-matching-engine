@@ -3,14 +3,15 @@ package io.bux.matchingengine.dto;
 import io.bux.matchingengine.enums.Direction;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 
 public record OrderRequest(
         @NotNull
         String asset,
         @NotNull
-        Double price,
+        BigDecimal price,
         @NotNull
-        Double amount,
+        BigDecimal amount,
         @NotNull
         Direction direction) {
 

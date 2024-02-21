@@ -6,6 +6,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @SpringBootTest
@@ -43,8 +44,8 @@ public class OrderDaoImplTest {
         return OrderModel
                 .builder()
                 .asset("TST")
-                .price(10.00)
-                .amount(100.0)
+                .price(new BigDecimal("10.00"))
+                .amount(new BigDecimal("100.0"))
                 .direction(Direction.SELL)
                 .timestamp(Instant.now())
                 .build();

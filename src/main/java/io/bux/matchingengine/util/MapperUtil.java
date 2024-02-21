@@ -7,6 +7,7 @@ import io.bux.matchingengine.dto.OrderResponse;
 import io.bux.matchingengine.dto.TradeResponse;
 import io.bux.matchingengine.engine.Order;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
@@ -27,7 +28,7 @@ public final class MapperUtil {
                         .map(t -> new TradeResponse(t.getOrderId(), t.getAmount(), t.getPrice()))
                         .sorted(Comparator.comparingLong(TradeResponse::orderId))
                         .collect(Collectors.toList()),
-                orderModel.getAmount() - orderModel.getTrades().stream().map(TradeModel::getAmount).mapToDouble(a -> a).sum());
+                orderModel.getAmount().subtract(orderModel.getTrades().stream().map(TradeModel::getAmount).reduce(BigDecimal.ZERO, BigDecimal::add)));
     }
 
     public static OrderModel mapOrderRequestToOrderModel(OrderRequest request) {
